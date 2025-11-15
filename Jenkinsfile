@@ -2,38 +2,34 @@ pipeline {
     agent any
 
     stages {
-
-        stage('Checkout') {
+        stage('Clone') {
             steps {
-                git url: 'https://github.com/nathiyak2752002/Personal-Website-Template.git', branch: 'main'
+                git branch: 'main', url: 'https://github.com/nathiyak2752002/Personal-Website-Template.git'
+            }
+        }
+
+        stage('Build React') {
+            steps {
+                sh 'npm install'
+                sh 'npm run build'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh 'docker build -t my-frontend-app .'
-                }
+                sh 'docker build -t myfrontend:latest .'
             }
         }
 
-        stage('Stop Old Container') {
+        stage('Stop old container') {
             steps {
-                script {
-                    sh '''
-                    docker rm -f my-frontend-app || true
-                    '''
-                }
+                sh 'docker rm -f myfrontend || true'
             }
         }
 
-        stage('Run New Container') {
+        stage('Run new container') {
             steps {
-                script {
-                    sh '''
-                    docker run -d -p 3000:3000 --name my-frontend-app my-frontend-app
-                    '''
-                }
+                sh 'docker run -d --name myfrontend -p 80:80 myfrontend:latest'
             }
         }
     }
