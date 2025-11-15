@@ -1,9 +1,15 @@
 # Stage 1: Build React App
 FROM node:18 AS build
 WORKDIR /app
+
+# Install dependencies first (cached)
 COPY package*.json ./
-RUN npm install
+RUN npm ci --legacy-peer-deps
+
+# Copy rest of the code
 COPY . .
+
+# Build React app
 RUN npm run build
 
 # Stage 2: Nginx to serve the build
